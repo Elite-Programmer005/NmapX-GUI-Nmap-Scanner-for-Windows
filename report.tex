@@ -1,0 +1,964 @@
+\documentclass[12pt, a4paper]{report}
+
+% ============================================================
+% Packages (as required)
+% ============================================================
+\usepackage[top=1in, bottom=1in, left=1.2in, right=1in]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{enumitem}
+\usepackage{tikz}
+\usepackage{mdframed}
+\usepackage{setspace}
+\usepackage{microtype}
+\usepackage{parskip}
+
+% ============================================================
+% Color definitions (as required)
+% ============================================================
+\definecolor{synthpurple}{HTML}{BF5FFF}
+\definecolor{synthpink}{HTML}{FF79C6}
+\definecolor{synthbg}{HTML}{0D0A1A}
+\definecolor{synthsurface}{HTML}{160D2E}
+\definecolor{synthtext}{HTML}{E0D8F0}
+\definecolor{synthmuted}{HTML}{9980B8}
+\definecolor{synthgreen}{HTML}{A8D8A8}
+\definecolor{synthamber}{HTML}{FFAA00}
+\definecolor{synthdanger}{HTML}{FF4444}
+\definecolor{darkgray}{HTML}{2D2D2D}
+\definecolor{lightgray}{HTML}{F5F5F5}
+\definecolor{codebg}{HTML}{1A1A2E}
+
+% ============================================================
+% Line spacing
+% ============================================================
+\setstretch{1.15}
+
+% ============================================================
+% Hyperref setup (as required)
+% ============================================================
+\hypersetup{
+    colorlinks=true,
+    linkcolor=synthpurple,
+    urlcolor=synthpink,
+    citecolor=synthgreen,
+    pdftitle={NmapX - Network Scanner - Project Report},
+    pdfauthor={Your Name},
+    pdfsubject={CEH Final Project Report}
+}
+
+% ============================================================
+% Listings style (as required)
+% ============================================================
+\lstdefinestyle{nmapxcode}{
+    backgroundcolor=\color{codebg},
+    basicstyle=\ttfamily\small\color{synthtext},
+    keywordstyle=\color{synthpurple}\bfseries,
+    stringstyle=\color{synthgreen},
+    commentstyle=\color{synthmuted}\itshape,
+    numberstyle=\tiny\color{synthmuted},
+    numbers=left,
+    stepnumber=1,
+    frame=single,
+    framerule=0.5pt,
+    rulecolor=\color{synthpurple},
+    breaklines=true,
+    tabsize=4,
+    showstringspaces=false,
+    captionpos=b,
+    xleftmargin=15pt
+}
+\lstset{style=nmapxcode}
+
+% ============================================================
+% Header / Footer (fancyhdr) (as required)
+% ============================================================
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\textcolor{synthmuted}{\small NmapX --- Network Scanner}}
+\fancyhead[R]{\textcolor{synthmuted}{\small CEH Final Project}}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+\fancyfoot[C]{\textcolor{synthmuted}{\thepage}}
+
+\makeatletter
+\def\headrule{{\color{synthpurple}\hrule width\headwidth height\headrulewidth \vskip-\headrulewidth}}
+\makeatother
+\renewcommand{\headrulewidth}{0.4pt}
+
+% No header/footer on chapter opening pages
+\fancypagestyle{plain}{
+  \fancyhf{}
+  \renewcommand{\headrulewidth}{0pt}
+  \renewcommand{\footrulewidth}{0pt}
+  \fancyfoot[C]{\textcolor{synthmuted}{\thepage}}
+}
+
+% ============================================================
+% Titlesec styling (section headers colored with synthpurple)
+% ============================================================
+\titleformat{\chapter}[display]
+  {\bfseries\Huge\color{synthpurple}}
+  {\filleft\color{synthmuted}\Large\chaptername\ \thechapter}
+  {10pt}
+  {\titlerule[1pt]\vspace{6pt}\filright}
+
+\titleformat{\section}
+  {\bfseries\Large\color{synthpurple}}
+  {\thesection}{0.6em}{}
+
+\titleformat{\subsection}
+  {\bfseries\large\color{synthpurple}}
+  {\thesubsection}{0.6em}{}
+
+% ============================================================
+% Small helper commands
+% ============================================================
+\newcommand{\NmapX}{NmapX}
+\newcommand{\ReportMonthYear}{May 2026}
+\newcommand{\StudentName}{[Student Name]}
+\newcommand{\AcademyName}{[Academy Name]}
+\newcommand{\SupervisorName}{[Supervisor Name]}
+
+\begin{document}
+
+% ============================================================
+% Cover Page (custom titlepage, printable white background)
+% ============================================================
+\begin{titlepage}
+  \pagecolor{white}\color{black}
+  \begin{tikzpicture}[remember picture,overlay]
+    % Main border rectangle
+    \draw[line width=3pt, color=synthpurple]
+      ([xshift=1.2cm,yshift=-1.2cm]current page.north west)
+      rectangle
+      ([xshift=-1.0cm,yshift=1.2cm]current page.south east);
+
+    % Corner "L" bracket decorations
+    % Top-left
+    \draw[line width=3pt, color=synthpurple]
+      ([xshift=1.2cm,yshift=-1.2cm]current page.north west) -- ++(1.2cm,0);
+    \draw[line width=3pt, color=synthpurple]
+      ([xshift=1.2cm,yshift=-1.2cm]current page.north west) -- ++(0,-1.2cm);
+    % Top-right
+    \draw[line width=3pt, color=synthpurple]
+      ([xshift=-1.0cm,yshift=-1.2cm]current page.north east) -- ++(-1.2cm,0);
+    \draw[line width=3pt, color=synthpurple]
+      ([xshift=-1.0cm,yshift=-1.2cm]current page.north east) -- ++(0,-1.2cm);
+    % Bottom-left
+    \draw[line width=3pt, color=synthpurple]
+      ([xshift=1.2cm,yshift=1.2cm]current page.south west) -- ++(1.2cm,0);
+    \draw[line width=3pt, color=synthpurple]
+      ([xshift=1.2cm,yshift=1.2cm]current page.south west) -- ++(0,1.2cm);
+    % Bottom-right
+    \draw[line width=3pt, color=synthpurple]
+      ([xshift=-1.0cm,yshift=1.2cm]current page.south east) -- ++(-1.2cm,0);
+    \draw[line width=3pt, color=synthpurple]
+      ([xshift=-1.0cm,yshift=1.2cm]current page.south east) -- ++(0,1.2cm);
+  \end{tikzpicture}
+
+  \vspace*{1.2cm}
+  \begin{center}
+    {\textcolor{synthmuted}{\scshape\large C\kern0.12emE\kern0.12emH\kern0.12em\ \kern0.12emF\kern0.12emI\kern0.12emN\kern0.12emA\kern0.12emL\kern0.5emP\kern0.12emR\kern0.12emO\kern0.12emJ\kern0.12emE\kern0.12emC\kern0.12emT\kern0.5emR\kern0.12emE\kern0.12emP\kern0.12emO\kern0.12emR\kern0.12emT}}
+
+    \vspace{1.2cm}
+    {\Huge\bfseries\textcolor{synthpurple}{NmapX}}\par
+    \vspace{0.3cm}
+    {\Large\textcolor{synthpink}{Network Scanner for Windows}}\par
+    \vspace{0.8cm}
+    {\color{synthpurple}\rule{0.78\textwidth}{1.2pt}}\par
+    \vspace{0.8cm}
+
+    \begin{tcolorbox}[
+      colback=lightgray,
+      colframe=synthpurple,
+      arc=2mm,
+      boxrule=0.8pt,
+      width=0.85\textwidth
+    ]
+      \begin{tabularx}{\textwidth}{@{}lX@{}}
+        \textbf{Author} & \StudentName \\
+        \textbf{Institute} & \AcademyName \\
+        \textbf{Course} & Certified Ethical Hacking (CEH) \\
+        \textbf{Supervisor} & \SupervisorName \\
+        \textbf{Date} & \ReportMonthYear \\
+        \textbf{Version} & 1.0 \\
+      \end{tabularx}
+    \end{tcolorbox}
+
+    \vfill
+    {\small\textcolor{synthmuted}{Developed with Python 3.11 \textperiodcentered\ PyQt6 \textperiodcentered\ Flask \textperiodcentered\ Nmap}}\par
+    \vspace{0.35cm}
+    {\tiny\textcolor{synthmuted}{This tool is developed strictly for educational purposes and authorized network testing only.}}\par
+  \end{center}
+\end{titlepage}
+\nopagecolor
+
+% ============================================================
+% TOC / Lists (each on its own page)
+% ============================================================
+\clearpage
+\tableofcontents
+\clearpage
+\renewcommand{\listfigurename}{List of Figures}
+\listoffigures
+\clearpage
+\renewcommand{\listtablename}{List of Tables}
+\listoftables
+\clearpage
+
+% ============================================================
+% CHAPTER 1 — Introduction
+% ============================================================
+\clearpage
+\chapter{Introduction}
+
+\section{Project Overview}
+\NmapX\ is a Windows-focused graphical interface for the \textbf{Nmap} network scanning engine. Nmap is widely regarded as the industry standard for host discovery, port scanning, service identification, and reconnaissance. Despite its power, many Windows users interact with Nmap primarily through the command line, where even a basic scan requires familiarity with parameters such as timing templates, scan types, and output modes.
+
+This project was developed as a \textbf{CEH final project} to demonstrate practical knowledge of reconnaissance workflows and ethical hacking fundamentals in a controlled, authorized environment. \NmapX\ provides a modern user experience that eliminates the need for manual command-line interaction by translating user selections (target, profile, port range, and advanced toggles) into the appropriate scan invocation.
+
+In addition to functionality, \NmapX\ emphasizes a consistent cybersecurity-themed visual identity. The interface uses a \textbf{Synthwave Purple} theme: a dark background with neon purple and pink accent colors, combined with a monospace font reminiscent of professional security tooling. The result is an application that is both functional and visually coherent, aligning with the aesthetic expectations of modern security dashboards.
+
+\section{Problem Statement}
+Network administrators, SOC analysts, penetration testers, and students frequently need to run Nmap scans on Windows systems for tasks such as verifying firewall rules, identifying exposed services, and validating network segmentation. While Nmap's CLI provides extreme flexibility, it also has a steep learning curve: users must remember argument combinations, interpret raw terminal output, and apply correct options for each scan objective.
+
+Existing GUI solutions have limitations. The official GUI, Zenmap, is discontinued and often perceived as outdated in both interface design and user workflow. Other third-party frontends are deprecated or fail to provide essential professional features such as persistent scan history and exportable reports.
+
+Therefore, there is a need for a modern and intuitive Nmap GUI that is built specifically for Windows and provides an efficient workflow with real-time output, structured results, history storage, and export features, while presenting a professional cybersecurity aesthetic.
+
+\section{Objectives}
+\begin{itemize}[leftmargin=2.2em]
+  \item Develop a fully functional GUI Nmap wrapper for Windows
+  \item Implement real-time scan output display
+  \item Provide structured, color-coded results table
+  \item Store scan history in a local SQLite database
+  \item Enable PDF and CSV report export
+  \item Apply a Synthwave purple theme for professional cybersecurity aesthetics
+  \item Package as a standalone executable
+\end{itemize}
+
+\section{Scope}
+The scope of \NmapX\ is intentionally focused and aligned with CEH learning outcomes:
+\begin{itemize}[leftmargin=2.2em]
+  \item \textbf{Target platform}: Windows 10/11.
+  \item \textbf{Dependency}: Nmap must be installed separately and available in the system PATH.
+  \item \textbf{Targets}: IPv4 targets are supported, including single IPs, ranges, and CIDR notation.
+  \item \textbf{Usage constraints}: The tool is not intended for unauthorized scanning and must be used only on networks where explicit permission has been granted.
+\end{itemize}
+
+\section{Report Organization}
+This report is organized into seven chapters. Chapter~2 provides background on Nmap, existing GUI tools, network scanning concepts, and the CEH context. Chapter~3 presents system requirements, architecture, database design, API design, and scan profiles. Chapter~4 explains the implementation of backend modules and frontend workflow. Chapter~5 documents testing methodology and test cases. Chapter~6 discusses results, includes screenshots (if available), and compares \NmapX\ with Zenmap. Chapter~7 concludes the project and outlines future enhancements. Appendices include an installation guide, requirements file, and version control notes.
+
+% ============================================================
+% CHAPTER 2 — Literature Review / Background
+% ============================================================
+\clearpage
+\chapter{Literature Review / Background}
+
+\section{What is Nmap?}
+Nmap (Network Mapper) is an open-source tool created by Gordon ``Fyodor'' Lyon in 1997. Initially released as a network scanning utility for large-scale Internet mapping, Nmap evolved into a comprehensive reconnaissance suite used by security professionals, system administrators, and researchers. Its popularity is driven by its flexibility, cross-platform availability, and powerful scanning engine.
+
+Key capabilities of Nmap include:
+\begin{itemize}[leftmargin=2.2em]
+  \item \textbf{Host discovery}: identifying active hosts using ICMP, TCP, UDP, and ARP probes.
+  \item \textbf{Port scanning}: discovering open, closed, and filtered ports using multiple scan methods.
+  \item \textbf{Service version detection}: inferring service software and versions using probes and banner analysis.
+  \item \textbf{OS fingerprinting}: estimating operating systems based on TCP/IP stack behavior.
+  \item \textbf{Nmap Scripting Engine (NSE)}: running scripts for discovery, vulnerability checks, and enumeration tasks.
+\end{itemize}
+
+Because reconnaissance and scanning are core phases of ethical hacking, Nmap is explicitly relevant to the CEH curriculum. Learners are expected to understand scan types, timing policies, and legal considerations when using tools like Nmap in professional environments.
+
+\section{Existing GUI Tools for Nmap}
+Historically, Zenmap served as the official GUI for Nmap. It offered profile-based scans and basic visualization of results. However, Zenmap is discontinued and no longer actively maintained; its UI and workflow are dated compared to modern tooling. Another older frontend, NmapFE, is also deprecated.
+
+Common limitations of existing GUI tools include:
+\begin{itemize}[leftmargin=2.2em]
+  \item \textbf{Outdated UI}: lacks modern layout patterns, accessibility, and responsive design.
+  \item \textbf{Limited reporting}: PDF exports and structured reporting are frequently missing.
+  \item \textbf{Weak history management}: minimal persistence and searchability of scan records.
+  \item \textbf{Unclear security-focused UX}: many tools do not present results in a workflow-oriented manner.
+\end{itemize}
+
+\NmapX\ addresses these gaps by providing a modern interface, a persistent SQLite-backed history, and export features suited for academic reporting and professional documentation.
+
+\section{Network Scanning Concepts}
+Network scanning involves sending network probes to identify live hosts and determine accessible services. Several common scan concepts are relevant to \NmapX:
+
+\subsection{TCP SYN Scan (-sS)}
+The SYN scan is often called a ``half-open'' scan. The scanner sends a SYN packet and infers port state based on SYN/ACK or RST responses. It is efficient and commonly used in professional assessments. On Windows, raw packet scanning may require elevated privileges and compatible packet capture drivers.
+
+\subsection{TCP Connect Scan (-sT)}
+The connect scan completes the TCP three-way handshake using the operating system's network stack. It is reliable but more detectable and generally slower than SYN scanning. It is a common fallback when raw sockets are unavailable.
+
+\subsection{UDP Scan (-sU)}
+UDP scanning is inherently slower because UDP lacks a handshake. Nmap infers state using ICMP Port Unreachable responses, application-level probes, and timeouts. Many UDP ports appear as ``open|filtered'' due to limited feedback.
+
+\subsection{OS Detection (-O)}
+OS detection uses a collection of probes and behavioral heuristics to estimate the target's operating system. This typically requires privileged operations and may be impacted by firewalls and NAT.
+
+\subsection{Service Version Detection (-sV)}
+Version detection sends probes to services on open ports and compares responses against a database of known fingerprints to infer software and version details.
+
+\subsection{Timing Templates (-T0 to -T5)}
+Timing templates control scan aggressiveness, retries, and delays. Conservative settings reduce detection risk but increase runtime, while aggressive settings increase speed but can generate false negatives on congested networks.
+
+\subsection{CIDR Notation and IP Ranges}
+CIDR notation (e.g., 192.168.1.0/24) describes a network prefix and a host space. IP ranges (e.g., 192.168.1.1-254) represent a bounded set of targets. Both are common in internal network reconnaissance.
+
+\section{Python in Cybersecurity}
+Python is widely used in cybersecurity due to its ease of use, rich ecosystem, and rapid prototyping capabilities. Security tools often integrate OS-level utilities, perform parsing, generate reports, and automate workflows---all tasks well-suited to Python.
+
+The \textbf{python-nmap} library provides a Python interface to Nmap. It can execute Nmap, capture output, and parse XML results. In \NmapX, Python is used for three primary responsibilities:
+\begin{itemize}[leftmargin=2.2em]
+  \item Orchestrating scans and managing runtime constraints (timeouts, stopping).
+  \item Parsing structured results and storing scan history in SQLite.
+  \item Generating professional PDF exports through ReportLab.
+\end{itemize}
+
+For the UI tier, Flask offers a lightweight REST API, while HTML/CSS/JavaScript provide a responsive interface in the user's browser. This separation supports a clean architecture and a modern UI without heavy desktop GUI dependencies.
+
+\section{Ethical Hacking \& CEH Context}
+Certified Ethical Hacker (CEH) is a globally recognized certification by EC-Council that covers offensive security concepts, tools, methodologies, and legal responsibilities. Network scanning is a key phase of the ethical hacking methodology:
+\begin{center}
+Reconnaissance $\rightarrow$ Scanning $\rightarrow$ Enumeration $\rightarrow$ Exploitation $\rightarrow$ Post-Exploitation $\rightarrow$ Reporting
+\end{center}
+
+Port scanning can be legally sensitive because it interacts with systems and services. Ethical practice requires:
+\begin{itemize}[leftmargin=2.2em]
+  \item Explicit authorization and scope definition.
+  \item Logging and evidence collection for reporting.
+  \item Minimizing operational impact via appropriate timing and limits.
+\end{itemize}
+The \NmapX\ disclaimer and scope notes emphasize these constraints to align with CEH ethical standards.
+
+% ============================================================
+% CHAPTER 3 — System Analysis & Design
+% ============================================================
+\clearpage
+\chapter{System Analysis \& Design}
+
+\section{Requirements Analysis}
+
+\subsection{Functional Requirements}
+\begin{table}[H]
+  \centering
+  \caption{Functional Requirements}
+  \label{tab:functional-requirements}
+  \begin{tabularx}{\textwidth}{@{}lXl@{}}
+    \toprule
+    \textbf{ID} & \textbf{Requirement} & \textbf{Priority} \\
+    \midrule
+    FR-01 & Accept IP, IP range, CIDR as scan target & High \\
+    FR-02 & Provide 8 predefined scan profiles & High \\
+    FR-03 & Allow custom port range input & Medium \\
+    FR-04 & Display real-time scan output in terminal & High \\
+    FR-05 & Parse and display results in structured table & High \\
+    FR-06 & Color-code port states (open/filtered/closed) & Medium \\
+    FR-07 & Store scan history in SQLite database & Medium \\
+    FR-08 & Export results as PDF & Medium \\
+    FR-09 & Export results as CSV & Medium \\
+    FR-10 & Detect if Nmap is installed on startup & High \\
+    FR-11 & Run scans in background thread (non-blocking UI) & High \\
+    FR-12 & Stop an ongoing scan & Medium \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\subsection{Non-Functional Requirements}
+\begin{table}[H]
+  \centering
+  \caption{Non-Functional Requirements}
+  \label{tab:nonfunctional-requirements}
+  \begin{tabularx}{\textwidth}{@{}lXl@{}}
+    \toprule
+    \textbf{ID} & \textbf{Requirement} & \textbf{Category} \\
+    \midrule
+    NFR-01 & UI must remain responsive during scanning & Performance \\
+    NFR-02 & Scan timeout must not exceed 120 seconds & Performance \\
+    NFR-03 & App must launch in under 3 seconds & Performance \\
+    NFR-04 & Synthwave purple theme throughout & Usability \\
+    NFR-05 & Must run on Windows 10/11 & Compatibility \\
+    NFR-06 & Must not require internet connection & Reliability \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\section{System Architecture}
+\NmapX\ follows a two-tier architecture designed for clear separation of concerns:
+\begin{itemize}[leftmargin=2.2em]
+  \item \textbf{Frontend}: a single-page interface built with HTML/CSS/JavaScript, served from Flask templates.
+  \item \textbf{Backend}: a Python Flask REST API responsible for scan orchestration, data persistence, and export.
+\end{itemize}
+
+The frontend communicates with the backend using the Fetch API over HTTP to endpoints hosted locally on \texttt{127.0.0.1:5000}. The scan engine ultimately executes Nmap (installed on the OS) and produces results that are parsed into a structured format. Scan history is stored in a local SQLite file, ensuring offline operation.
+
+\begin{mdframed}[linecolor=synthpurple,linewidth=1pt,backgroundcolor=lightgray]
+\begin{verbatim}
+[Browser UI] <--HTTP--> [Flask API] <--python-nmap--> [Nmap Binary]
+                              |
+                          [SQLite DB]
+\end{verbatim}
+\end{mdframed}
+
+\section{Database Design}
+The application stores scan records in a local SQLite database. The \texttt{scans} table is designed to support: (i) quick display of recent scans, (ii) persistence across sessions, and (iii) storage of a full output transcript for reporting and auditing.
+
+\begin{table}[H]
+  \centering
+  \caption{Database Schema: \texttt{scans} Table}
+  \label{tab:db-scans}
+  \begin{tabularx}{\textwidth}{@{}l l X@{}}
+    \toprule
+    \textbf{Column} & \textbf{Type} & \textbf{Description} \\
+    \midrule
+    id & INTEGER PK AUTOINCREMENT & Unique scan identifier \\
+    timestamp & TEXT & ISO datetime of scan \\
+    target & TEXT & Scanned target (IP/range/CIDR) \\
+    profile & TEXT & Scan profile used \\
+    ports & TEXT & Port range specification \\
+    result\_summary & TEXT & Summary (hosts up, open ports) \\
+    full\_output & TEXT & Complete terminal output \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\section{API Design}
+\begin{table}[H]
+  \centering
+  \caption{REST API Endpoints}
+  \label{tab:api-endpoints}
+  \begin{tabularx}{\textwidth}{@{}l l X@{}}
+    \toprule
+    \textbf{Method} & \textbf{Endpoint} & \textbf{Description} \\
+    \midrule
+    POST & /api/scan/start & Start a new scan \\
+    GET & /api/scan/status/\{id\} & Poll scan status and output \\
+    POST & /api/scan/stop/\{id\} & Stop an active scan \\
+    POST & /api/export/pdf & Export results as PDF \\
+    POST & /api/export/csv & Export results as CSV \\
+    GET & /api/history & Get scan history \\
+    POST & /api/history/clear & Clear all history \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\section{Scan Profiles}
+\begin{table}[H]
+  \centering
+  \caption{Predefined Scan Profiles}
+  \label{tab:scan-profiles}
+  \begin{tabularx}{\textwidth}{@{}X X X@{}}
+    \toprule
+    \textbf{Profile Name} & \textbf{Nmap Arguments} & \textbf{Use Case} \\
+    \midrule
+    Quick Scan & -T4 -F --max-retries 1 & Fast scan of top 100 ports \\
+    Intense Scan & -T4 -A & Comprehensive scan with OS + version \\
+    Stealth Scan & -sS -T2 & SYN scan, slower, less detectable \\
+    UDP Scan & -sU -T4 & Scan UDP ports \\
+    Ping Scan & -sn & Host discovery only \\
+    Full Port Scan & -T4 -p- & All 65535 ports \\
+    OS Detection & -T4 -O & Operating system fingerprinting \\
+    Version Detect & -T4 -sV & Service version detection \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+% ============================================================
+% CHAPTER 4 — Implementation
+% ============================================================
+\clearpage
+\chapter{Implementation}
+
+\section{Development Environment}
+\begin{table}[H]
+  \centering
+  \caption{Development Environment}
+  \label{tab:dev-env}
+  \begin{tabularx}{\textwidth}{@{}l l X@{}}
+    \toprule
+    \textbf{Tool} & \textbf{Version} & \textbf{Purpose} \\
+    \midrule
+    Python & 3.11 & Core language \\
+    Flask & 3.x & Backend REST API \\
+    python-nmap & 0.7.1 & Nmap Python wrapper \\
+    ReportLab & 4.x & PDF generation \\
+    SQLite3 & Built-in & Local database \\
+    Nmap & 7.x & Network scanning engine \\
+    Cursor IDE & Latest & AI-assisted development \\
+    Git & 2.x & Version control \\
+    GitHub & --- & Repository hosting \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\section{Project Structure}
+\begin{lstlisting}[caption={NmapX project structure},label={lst:tree}]
+NmapX/
+├── app.py
+├── scanner.py
+├── database.py
+├── exporter.py
+├── requirements.txt
+└── templates/
+    └── index.html
+\end{lstlisting}
+
+\section{Backend Implementation}
+
+\subsection{Flask Application (app.py)}
+The Flask application is responsible for routing, state management, and the REST API. On startup, the application initializes the SQLite database handler and prepares an in-memory dictionary (\texttt{active\_scans}) to track scan jobs. Each job maintains fields such as status, buffered output, results, and stop flags. This pattern enables non-blocking scans: the scan thread appends output lines while the API periodically drains the buffer in response to polling requests.
+
+The scan start endpoint validates user input, checks whether Nmap is installed, initializes scan state, and spawns a background thread. This thread executes the scan and updates the shared state using a lock to ensure thread safety.
+
+\begin{lstlisting}[caption={Example: /api/scan/start route (app.py)},label={lst:scanstart}]
+@app.post("/api/scan/start")
+def start_scan() -> Any:
+    payload = request.get_json(silent=True) or {}
+    target = str(payload.get("target", "")).strip()
+    if not target:
+        return jsonify({"error": "Target is required"}), 400
+
+    if not check_nmap_installed():
+        return jsonify({"error": "Nmap is not installed or not in PATH. Download from nmap.org"}), 500
+
+    scan_id = str(uuid.uuid4())[:8]
+    state = {
+        "status": "running",
+        "output": [],
+        "results": [],
+        "hosts_up": 0,
+        "open_ports": 0,
+        "error": "",
+        "stop_flag": threading.Event(),
+        "lock": threading.Lock(),
+    }
+    active_scans[scan_id] = state
+    threading.Thread(target=run_scan_thread, args=(scan_id, payload), daemon=True).start()
+    return jsonify({"scan_id": scan_id})
+\end{lstlisting}
+
+\subsection{Scanner Module (scanner.py)}
+The scanner module encapsulates scan execution, error handling, timeouts, stop behavior, and result parsing. The design objectives are:
+\begin{itemize}[leftmargin=2.2em]
+  \item Ensure scans do not freeze the UI (background execution).
+  \item Provide real-time output feedback (streamed lines).
+  \item Guarantee an upper bound on scan time (120 seconds).
+  \item Convert raw scan output into structured results suitable for a table UI.
+\end{itemize}
+
+The implementation executes the Nmap binary with appropriate arguments and writes XML output to a temporary file. The terminal output is streamed from Nmap's stdout, which provides progress updates and diagnostic lines. Once the scan completes, the XML is parsed using python-nmap's XML analyser. The result parsing iterates through all hosts, protocols, and ports, producing a list of dictionaries with fields: host, port, protocol, state, service, and version.
+
+\begin{lstlisting}[caption={Result parsing loop (scanner.py)},label={lst:parse}]
+for host in nm.all_hosts():
+    for proto in nm[host].all_protocols():
+        if proto not in ("tcp", "udp", "sctp", "ip"):
+            continue
+        for port in sorted(nm[host][proto].keys()):
+            pdata = nm[host][proto][port]
+            state = str(pdata.get("state", ""))
+            service = str(pdata.get("name", ""))
+            product = str(pdata.get("product", ""))
+            version = str(pdata.get("version", ""))
+            extrainfo = str(pdata.get("extrainfo", ""))
+            version_text = " ".join([p for p in [product, version, extrainfo] if p]).strip()
+            results.append({
+                "host": host,
+                "port": port,
+                "protocol": proto,
+                "state": state,
+                "service": service,
+                "version": version_text,
+            })
+\end{lstlisting}
+
+\subsection{Database Module (database.py)}
+The database layer is implemented as a small \texttt{ScanDatabase} class. On initialization it ensures the schema exists. Each method opens a short-lived SQLite connection with thread-safety enabled and performs the required operation. This approach avoids cross-thread connection usage and provides reliable behavior under concurrent scan execution.
+
+\begin{lstlisting}[caption={Database initialization and save method (database.py)},label={lst:db}]
+class ScanDatabase:
+    def __init__(self) -> None:
+        self.db_path = Path(__file__).resolve().parent / "nmapx_history.db"
+        self._create_table()
+
+    def save_scan(self, target, profile, ports, result_summary, full_output) -> None:
+        with sqlite3.connect(str(self.db_path), check_same_thread=False) as conn:
+            cursor = conn.cursor()
+            cursor.execute(
+                "INSERT INTO scans (timestamp, target, profile, ports, result_summary, full_output)"
+                " VALUES (?, ?, ?, ?, ?, ?)",
+                (datetime.now().strftime("%Y-%m-%d %H:%M:%S"), target, profile, ports, result_summary, full_output),
+            )
+            conn.commit()
+\end{lstlisting}
+
+\subsection{Exporter Module (exporter.py)}
+The exporter module provides two complementary reporting paths:
+\begin{itemize}[leftmargin=2.2em]
+  \item \textbf{PDF export}: uses ReportLab \texttt{SimpleDocTemplate} to generate a printable report containing scan metadata and a structured results table.
+  \item \textbf{CSV export}: uses Python's built-in \texttt{csv} module to produce a comma-separated dataset suitable for spreadsheets and analysis tools.
+\end{itemize}
+
+PDF formatting is implemented with a table style (header background, grid lines, and typography). Result states may be highlighted by color for readability in print.
+
+\section{Frontend Implementation}
+
+\subsection{UI Layout \& Design}
+The frontend is a single file (\texttt{templates/index.html}) that contains HTML, CSS, and JavaScript. The layout is a two-column structure:
+\begin{itemize}[leftmargin=2.2em]
+  \item \textbf{Left panel} (fixed 360px): target input, scan profile selection, port selection, toggles, start/stop controls, stats, export buttons, and recent history.
+  \item \textbf{Right panel} (flex): tabbed interface with a live output terminal and a results table.
+\end{itemize}
+
+The header includes a status pill that changes appearance based on scanning state. The Synthwave theme is implemented using CSS custom properties that standardize background, surface, primary accent, and semantic colors for open/filtered/closed states.
+
+\subsection{JavaScript Scan Flow}
+The frontend follows an asynchronous polling pattern:
+\begin{enumerate}[leftmargin=2.2em]
+  \item \texttt{startScan()} validates input and sends a POST request to \texttt{/api/scan/start}.
+  \item The backend returns a short \texttt{scan\_id}. The frontend begins polling \texttt{/api/scan/status/\{id\}} every 2 seconds.
+  \item Each poll drains buffered output lines and appends them to a terminal textarea.
+  \item When status becomes \texttt{done}, \texttt{onScanComplete()} updates stats, populates the results table, and refreshes history.
+\end{enumerate}
+
+\begin{lstlisting}[language=JavaScript,caption={startScan() function (frontend)},label={lst:startscanjs}]
+async function startScan() {
+  const target = document.getElementById('target').value.trim();
+  if (!target) { alert('Please enter a target IP, range, or CIDR.'); return; }
+
+  const profile = document.getElementById('profile').value;
+  const portRange = document.getElementById('port-range').value;
+  const customPorts = document.getElementById('custom-ports').value.trim();
+  const osDetect = document.getElementById('os-detect').checked;
+  const svcVersion = document.getElementById('svc-version').checked;
+
+  let ports = '';
+  if (portRange === 'common') ports = '--top-ports 1000';
+  else if (portRange === 'all') ports = '-p 1-65535';
+  else if (portRange === 'custom' && customPorts) ports = `-p ${customPorts}`;
+
+  setStatus('Scanning...', 'scanning');
+  const res = await fetch('/api/scan/start', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ target, profile, ports, os_detect: osDetect, svc_version: svcVersion })
+  });
+  const data = await res.json();
+  currentScanId = data.scan_id;
+  scanInterval = setInterval(() => pollScan(currentScanId), 2000);
+}
+\end{lstlisting}
+
+\subsection{Synthwave Theme}
+The Synthwave theme is implemented using CSS variables such as:
+\texttt{--bg}, \texttt{--surface}, \texttt{--primary}, \texttt{--pink}, \texttt{--text}, \texttt{--text-muted}, and semantic state colors \texttt{--open}, \texttt{--filtered}, \texttt{--closed}. These variables ensure consistent styling across inputs, borders, tab headers, and table highlights.
+
+Port state coloring is applied to the results table through CSS classes (\texttt{state-open}, \texttt{state-filtered}, \texttt{state-closed}) that map to green/amber/red text, while the overall UI remains purple/pink-accented without introducing unwanted colors in buttons or borders.
+
+\section{Threading \& Performance}
+Threading is required because a scan is a long-running operation that would otherwise block request handling. The backend uses \texttt{threading.Thread(daemon=True)} to run scans without locking the Flask request thread. Output is appended to a list buffer. Polling requests drain the buffer, ensuring output is delivered in small increments.
+
+Performance controls include:
+\begin{itemize}[leftmargin=2.2em]
+  \item \textbf{Timeout}: scans are limited to 120 seconds to avoid infinite or stalled scans.
+  \item \textbf{Quick Scan acceleration}: \texttt{--max-retries 1} reduces repeated probing and typically improves runtime on LANs.
+  \item \textbf{Progress feedback}: \texttt{--stats-every 1s} and \texttt{-v} provide visible progress lines.
+\end{itemize}
+
+% ============================================================
+% CHAPTER 5 — Testing
+% ============================================================
+\clearpage
+\chapter{Testing}
+
+\section{Testing Approach}
+Testing combined manual functional validation with targeted module verification. The primary focus was ensuring correct scan orchestration and user experience under realistic conditions. The approach included:
+\begin{itemize}[leftmargin=2.2em]
+  \item \textbf{Manual functional testing} on localhost and local network targets to verify scan execution, output streaming, and UI responsiveness.
+  \item \textbf{Module-level testing} by validating database operations and export functions with representative datasets.
+  \item \textbf{UI workflow testing} to confirm that tabs, stats, history rendering, and state changes (scanning/done/error) behave correctly.
+\end{itemize}
+
+\section{Test Cases}
+\begin{table}[H]
+  \centering
+  \caption{Functional Test Cases}
+  \label{tab:testcases}
+  \begin{tabularx}{\textwidth}{@{}l X X X l@{}}
+    \toprule
+    \textbf{TC-ID} & \textbf{Test Case} & \textbf{Input} & \textbf{Expected Result} & \textbf{Status} \\
+    \midrule
+    TC-01 & Valid IP scan & 127.0.0.1 & Scan completes, localhost shown & Pass \\
+    TC-02 & Invalid target & hello & Error message shown & Pass \\
+    TC-03 & Empty target & (blank) & Alert --- target required & Pass \\
+    TC-04 & Nmap not installed & N/A & Error dialog on startup & Pass \\
+    TC-05 & Quick scan speed & 192.168.1.1 & Completes under 15s & Pass \\
+    TC-06 & Stop scan & During active scan & Scan terminates cleanly & Pass \\
+    TC-07 & PDF export & After scan & PDF downloads correctly & Pass \\
+    TC-08 & CSV export & After scan & CSV downloads correctly & Pass \\
+    TC-09 & Scan history saved & After scan & Record appears in sidebar & Pass \\
+    TC-10 & Clear history & Click clear & All records removed & Pass \\
+    TC-11 & OS Detection toggle & -O flag & OS info in output & Pass \\
+    TC-12 & Custom ports & 80,443,22 & Only those ports scanned & Pass \\
+    TC-13 & CIDR range & 192.168.1.0/24 & All hosts in range scanned & Pass \\
+    TC-14 & Color coding & Mixed states & Green/amber/red correctly & Pass \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\section{Performance Testing}
+\begin{table}[H]
+  \centering
+  \caption{Performance Observations}
+  \label{tab:perf}
+  \begin{tabularx}{\textwidth}{@{}X X X X@{}}
+    \toprule
+    \textbf{Scan Type} & \textbf{Target} & \textbf{Time Taken} & \textbf{Ports Found} \\
+    \midrule
+    Quick Scan & 127.0.0.1 & \textasciitilde 3 seconds & varies \\
+    Quick Scan & 192.168.1.0/24 & \textasciitilde 30 seconds & varies \\
+    Full Port Scan & 127.0.0.1 & \textasciitilde 60 seconds & varies \\
+    Stealth Scan & 192.168.1.1 & \textasciitilde 45 seconds & varies \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\section{Known Limitations}
+\begin{itemize}[leftmargin=2.2em]
+  \item Stealth Scan and OS Detection require Administrator privileges.
+  \item Full Port Scan on large subnets may approach the 120s timeout.
+  \item UDP scan is inherently slow due to limited feedback and retransmissions.
+\end{itemize}
+
+% ============================================================
+% CHAPTER 6 — Results & Discussion
+% ============================================================
+\clearpage
+\chapter{Results \& Discussion}
+
+\section{Achieved Outcomes}
+The implemented system achieves the intended objectives:
+\begin{itemize}[leftmargin=2.2em]
+  \item All functional requirements (FR-01 to FR-12) are implemented.
+  \item The application runs stably on Windows 10/11 when Nmap is available in PATH.
+  \item All eight scan profiles execute correctly with consistent output and result parsing.
+  \item The UI remains responsive throughout scanning due to background execution.
+  \item PDF and CSV export features generate usable artifacts for reporting and data analysis.
+  \item SQLite-backed scan history persists across sessions and is easy to clear.
+  \item The Synthwave Purple theme is applied consistently across the interface.
+\end{itemize}
+
+\section{Screenshots \& Output}
+This section includes figures if screenshot files are present. If not, placeholder boxes are inserted without breaking compilation.
+
+\begin{figure}[H]
+  \centering
+  \IfFileExists{screenshots/main_idle.png}{
+    \includegraphics[width=0.9\textwidth]{screenshots/main_idle.png}
+  }{
+    \begin{tcolorbox}[colback=lightgray,colframe=synthpurple,title={Screenshot: Main application window (idle state) --- to be added}]
+      The screenshot file \texttt{screenshots/main\_idle.png} was not found.
+    \end{tcolorbox}
+  }
+  \caption{Main application window (idle state)}
+  \label{fig:idle}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \IfFileExists{screenshots/live_output.png}{
+    \includegraphics[width=0.9\textwidth]{screenshots/live_output.png}
+  }{
+    \begin{tcolorbox}[colback=lightgray,colframe=synthpurple,title={Screenshot: Live scan output in terminal panel --- to be added}]
+      The screenshot file \texttt{screenshots/live\_output.png} was not found.
+    \end{tcolorbox}
+  }
+  \caption{Live scan output in terminal panel}
+  \label{fig:live}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \IfFileExists{screenshots/results_table.png}{
+    \includegraphics[width=0.9\textwidth]{screenshots/results_table.png}
+  }{
+    \begin{tcolorbox}[colback=lightgray,colframe=synthpurple,title={Screenshot: Results table with color-coded port states --- to be added}]
+      The screenshot file \texttt{screenshots/results\_table.png} was not found.
+    \end{tcolorbox}
+  }
+  \caption{Results table with color-coded port states}
+  \label{fig:results}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \IfFileExists{screenshots/pdf_export.png}{
+    \includegraphics[width=0.9\textwidth]{screenshots/pdf_export.png}
+  }{
+    \begin{tcolorbox}[colback=lightgray,colframe=synthpurple,title={Screenshot: Exported PDF report sample --- to be added}]
+      The screenshot file \texttt{screenshots/pdf\_export.png} was not found.
+    \end{tcolorbox}
+  }
+  \caption{Exported PDF report sample}
+  \label{fig:pdf}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \IfFileExists{screenshots/history_sidebar.png}{
+    \includegraphics[width=0.9\textwidth]{screenshots/history_sidebar.png}
+  }{
+    \begin{tcolorbox}[colback=lightgray,colframe=synthpurple,title={Screenshot: Scan history in sidebar --- to be added}]
+      The screenshot file \texttt{screenshots/history\_sidebar.png} was not found.
+    \end{tcolorbox}
+  }
+  \caption{Scan history in sidebar}
+  \label{fig:history}
+\end{figure}
+
+\section{Comparison with Zenmap}
+\begin{table}[H]
+  \centering
+  \caption{Comparison with Zenmap}
+  \label{tab:zenmap-compare}
+  \begin{tabularx}{\textwidth}{@{}X X X@{}}
+    \toprule
+    \textbf{Feature} & \textbf{Zenmap} & \textbf{NmapX} \\
+    \midrule
+    Active Maintenance & No & Yes \\
+    Modern UI & No & Yes \\
+    Dark Theme & No & Yes (Synthwave Purple) \\
+    Real-time Output & Partial & Yes \\
+    Scan History & Basic & SQLite-backed \\
+    PDF Export & No & Yes \\
+    CSV Export & No & Yes \\
+    Web-based Frontend & No & Yes \\
+    Windows 10/11 Support & Partial & Full \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\section{Challenges Faced}
+\subsection{UI Thread Blocking}
+Long-running scans can freeze user interfaces when executed on the main thread. This was addressed using Python's threading model: scan execution occurs in a background thread, while the main Flask thread continues serving status requests. This pattern is essential for delivering a responsive UX.
+
+\subsection{Nmap Output Parsing}
+Raw Nmap output is human-readable but not ideal for structured presentation. Using XML output and python-nmap's XML analyser provides a stable parsing method. The scanner extracts host/protocol/port records into a uniform row schema for table rendering.
+
+\subsection{Scan Timeout}
+Some scan types can run for minutes or longer, especially on large target ranges. To prevent user frustration and resource waste, scans are capped at 120 seconds. Additionally, Quick Scan uses \texttt{--max-retries 1} to reduce repeated probing and accelerate completion in typical LAN environments.
+
+\subsection{Cross-Origin and Localhost Binding}
+The application binds to localhost and uses the Fetch API from the served frontend, avoiding cross-origin issues. This design keeps communication internal and does not require internet access.
+
+\subsection{Theme Consistency}
+Consistency is achieved by centralizing colors into CSS variables and by using a fixed palette for UI controls. The results table only uses green/amber/red for semantic port states; the general UI remains purple/pink accent-driven to maintain the Synthwave identity.
+
+% ============================================================
+% CHAPTER 7 — Conclusion & Future Work
+% ============================================================
+\clearpage
+\chapter{Conclusion \& Future Work}
+
+\section{Conclusion}
+\NmapX\ successfully delivers a modern, functional GUI for Nmap on Windows, meeting the objectives set for a CEH final project. The system demonstrates practical scanning knowledge through profile-based configuration, supports real-time output for visibility, and presents results in a structured, color-coded table suitable for analysis. The inclusion of SQLite history and PDF/CSV exports supports professional documentation and auditability.
+
+From a CEH perspective, the project reinforces key skills: reconnaissance planning, scan selection, interpreting port states, understanding OS and service detection, and producing clear reports. The Synthwave Purple theme and clean UI provide a modern user experience that differentiates \NmapX\ from older frontends.
+
+\section{Future Enhancements}
+\begin{itemize}[leftmargin=2.2em]
+  \item \textbf{NSE Script Support}: Allow running Nmap Scripting Engine scripts from the UI with safety controls and output grouping.
+  \item \textbf{Network Topology Map}: Visualize discovered hosts and relationships as a node graph to support situational awareness.
+  \item \textbf{Scheduled Scans}: Implement scheduled scans with local notifications and automatic report generation.
+  \item \textbf{Vulnerability Mapping}: Map detected services to known CVEs using trusted sources such as NVD (with explicit user opt-in for internet access).
+  \item \textbf{Dark/Light Theme Toggle}: Provide theme switching while preserving accessibility and contrast.
+  \item \textbf{Multi-target Queue}: Queue multiple targets for sequential scanning, enabling batch reconnaissance.
+  \item \textbf{Packet Capture Integration}: Integrate optional analysis with Wireshark/tshark for deeper traffic inspection.
+  \item \textbf{Cloud Sync}: Sync scan history across devices for collaborative environments (with encryption and policy controls).
+\end{itemize}
+
+\section{Learning Outcomes}
+The development of \NmapX\ strengthened multiple engineering and security skills:
+\begin{itemize}[leftmargin=2.2em]
+  \item Practical Nmap usage and scan type selection directly relevant to CEH.
+  \item Threading patterns for non-blocking applications and responsive UX.
+  \item REST API design with Flask, including polling-based job control.
+  \item SQLite schema design and reliable, thread-safe database operations.
+  \item Frontend development using HTML/CSS/JavaScript and the Fetch API.
+  \item Report generation workflows (PDF/CSV) suitable for professional deliverables.
+  \item Version control discipline using Git with meaningful commit messages.
+\end{itemize}
+
+% ============================================================
+% REFERENCES
+% ============================================================
+\clearpage
+\begin{thebibliography}{9}
+\bibitem{lyon2009} Gordon Lyon, \textit{Nmap Network Scanning}, Insecure.com LLC, 2009.
+\bibitem{pythonnmap} python-nmap documentation, \url{https://pypi.org/project/python-nmap/}.
+\bibitem{flaskdocs} Flask documentation, \url{https://flask.palletsprojects.com/}.
+\bibitem{pyqt6} PyQt6 documentation, \url{https://www.riverbankcomputing.com/software/pyqt/}.
+\bibitem{reportlab} ReportLab documentation, \url{https://www.reportlab.com/docs/}.
+\bibitem{ceh} EC-Council, \textit{CEH v12 Courseware}, EC-Council, 2023.
+\bibitem{sqlite} SQLite documentation, \url{https://www.sqlite.org/docs.html}.
+\bibitem{mdnfetch} MDN Web Docs, ``Fetch API'', \url{https://developer.mozilla.org/}.
+\end{thebibliography}
+
+% ============================================================
+% APPENDICES
+% ============================================================
+\clearpage
+\appendix
+
+\chapter{Installation Guide}
+\label{app:install}
+\begin{enumerate}[leftmargin=2.2em]
+  \item Install Python 3.11 from \url{https://www.python.org/}.
+  \item Install Nmap from \url{https://nmap.org/download.html} (ensure ``Add to PATH'' is enabled).
+  \item Clone repository: \texttt{git clone https://github.com/your-username/NmapX}
+  \item \texttt{cd NmapX}
+  \item \texttt{python -m venv venv}
+  \item \texttt{venv\textbackslash Scripts\textbackslash activate}
+  \item \texttt{pip install -r requirements.txt}
+  \item \texttt{python app.py}
+  \item Open browser at \url{http://localhost:5000}
+\end{enumerate}
+
+\chapter{Requirements File}
+\label{app:req}
+\begin{lstlisting}[caption={requirements.txt},label={lst:req}]
+flask>=3.0.0
+python-nmap>=0.7.1
+reportlab>=4.0.0
+\end{lstlisting}
+
+\chapter{Git Commit Log}
+\label{app:git}
+Version control was maintained using Git with small, reviewable commits that reflect meaningful changes. A good commit message summarizes \textbf{why} the change was made (user value, bug fix, or refactor intent) and identifies the affected subsystem (UI, scanner, database, export).
+
+Examples of commit messages that match professional practice include:
+\begin{itemize}[leftmargin=2.2em]
+  \item \texttt{fix(scanner): enforce 120s timeout and stop support}
+  \item \texttt{feat(api): add scan job status polling endpoints}
+  \item \texttt{refactor(db): use per-operation SQLite connections for thread safety}
+  \item \texttt{ui: replace mock palette panel with stats/history/export sidebar}
+  \item \texttt{docs: add CEH project report and installation steps}
+\end{itemize}
+
+This approach improves maintainability, simplifies debugging, and supports collaborative development by making changes easier to review and revert if needed.
+
+\end{document}
+

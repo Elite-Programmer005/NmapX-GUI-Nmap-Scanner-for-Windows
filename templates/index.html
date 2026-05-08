@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NmapX — Network Scanner</title>
+  <style>
+    :root {
+      --bg:         #0d0a1a;
+      --surface:    #160d2e;
+      --surface2:   #1e1040;
+      --primary:    #bf5fff;
+      --primary-dim:#bf5fff33;
+      --pink:       #ff79c6;
+      --text:       #e0d8f0;
+      --text-muted: #9980b8;
+      --border:     #bf5fff33;
+      --border-dim: #bf5fff15;
+      --open:       #a8d8a8;
+      --filtered:   #ffaa00;
+      --closed:     #ff4444;
+      --font:       'Consolas', 'Courier New', monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 13px;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 20px;
+      background: #0a0714;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .header-title {
+      font-size: 2.25rem;
+      font-weight: 900;
+      color: var(--primary);
+      letter-spacing: 2px;
+    }
+
+    .header-title span {
+      color: var(--pink);
+    }
+
+    .status-pill {
+      font-size: 11px;
+      padding: 4px 12px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      background: var(--surface);
+      transition: all 0.3s;
+    }
+
+    .status-pill.scanning {
+      border-color: var(--primary);
+      color: var(--primary);
+      animation: pulse 1.5s infinite;
+    }
+
+    .status-pill.done {
+      border-color: var(--open);
+      color: var(--open);
+    }
+
+    .status-pill.error {
+      border-color: var(--closed);
+      color: var(--closed);
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .main {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .left-panel {
+      width: 410px;
+      flex-shrink: 0;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      padding: 16px;
+      gap: 10px;
+    }
+
+    .section-label {
+      font-size: 10px;
+      font-weight: bold;
+      color: var(--text-muted);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-top: 18px;
+      margin-bottom: 8px;
+    }
+
+    .section-label:first-child {
+      margin-top: 0;
+    }
+
+    input[type="text"], select {
+      width: 100%;
+      background: var(--bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 9px 12px;
+      font-family: var(--font);
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input[type="text"]:focus, select:focus {
+      border-color: var(--primary);
+    }
+
+    input[type="text"]:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+
+    input::placeholder {
+      color: #4a3d5c;
+    }
+
+    select {
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23bf5fff'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      padding-right: 32px;
+    }
+
+    select option {
+      background: var(--surface);
+      color: var(--text);
+    }
+
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 0;
+      cursor: pointer;
+      color: var(--text);
+    }
+
+    .checkbox-row input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--primary);
+      cursor: pointer;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 14px 16px;
+      border-radius: 6px;
+      font-family: var(--font);
+      font-size: 13px;
+      font-weight: bold;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 1px solid var(--primary);
+      background: transparent;
+      color: var(--primary);
+    }
+
+    .btn:hover {
+      background: var(--primary-dim);
+      color: var(--pink);
+    }
+
+    .btn:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #0d0a1a;
+      font-weight: bold;
+    }
+
+    .btn-primary:hover {
+      background: #a84de8;
+      border-color: #a84de8;
+      color: #0d0a1a;
+    }
+
+    .btn-danger {
+      border-color: var(--closed);
+      color: var(--closed);
+    }
+
+    .btn-danger:hover {
+      background: #ff444422;
+    }
+
+    .btn-sm {
+      padding: 12px 12px;
+      font-size: 11px;
+      width: auto;
+    }
+
+    .recent-scans-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .recent-scans-header .section-label {
+      margin: 0;
+      flex: 1;
+    }
+
+    .recent-scans-header .clear-btn {
+      width: auto;
+      min-width: 0;
+      flex: 0 0 auto;
+      padding: 4px 16px;
+      font-size: 10px;
+      line-height: 1.2;
+      height: 24px;
+    }
+
+    /* Make functional sidebar buttons feel full-width and consistent */
+    .left-panel .btn:not(.clear-btn) {
+      min-width: 100%;
+    }
+
+    .export-row {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .export-row .btn {
+      /* Export buttons should be narrower than full sidebar width */
+      width: 78%;
+      max-width: 320px;
+      margin-left: auto;
+      margin-right: auto;
+      text-align: center;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .stat-box {
+      background: var(--bg);
+      border: 1px solid var(--border-dim);
+      border-radius: 6px;
+      padding: 10px;
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 20px;
+      font-weight: bold;
+      color: var(--primary);
+    }
+
+    .stat-label {
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-top: 2px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .history-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    .history-item {
+      background: var(--bg);
+      border: 1px solid var(--border-dim);
+      border-radius: 6px;
+      padding: 8px 10px;
+      font-size: 11px;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+
+    .history-item:hover {
+      border-color: var(--primary);
+    }
+
+    .history-item .h-target {
+      color: var(--pink);
+      font-weight: bold;
+    }
+
+    .history-item .h-meta {
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .no-history {
+      color: var(--text-muted);
+      font-size: 12px;
+      text-align: center;
+      padding: 12px 0;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border-dim);
+      margin: 12px 0;
+    }
+
+    /* Sidebar-only scrollbar for small screens */
+    .left-panel::-webkit-scrollbar { width: 8px; }
+    .left-panel::-webkit-scrollbar-track { background: var(--surface); }
+    .left-panel::-webkit-scrollbar-thumb { background: var(--primary-dim); border-radius: 6px; }
+    .left-panel::-webkit-scrollbar-thumb:hover { background: var(--primary); }
+
+    .right-panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background: var(--bg);
+    }
+
+    .tab-bar {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+      background: #0a0714;
+      flex-shrink: 0;
+    }
+
+    .tab-btn {
+      padding: 10px 28px;
+      font-family: var(--font);
+      font-size: 12px;
+      font-weight: bold;
+      letter-spacing: 1px;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+    }
+
+    .tab-btn:hover {
+      color: var(--pink);
+    }
+
+    .tab-btn.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+    }
+
+    .tab-content {
+      display: none;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .tab-content.active {
+      display: flex;
+      flex-direction: column;
+    }
+
+    #terminal {
+      flex: 1;
+      background: #0a0714;
+      color: var(--primary);
+      font-family: var(--font);
+      font-size: 12px;
+      padding: 16px;
+      overflow-y: auto;
+      line-height: 1.7;
+      border: none;
+      outline: none;
+      resize: none;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+
+    .table-wrapper {
+      flex: 1;
+      overflow: auto;
+      padding: 0;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    thead th {
+      background: var(--surface);
+      color: var(--primary);
+      padding: 10px 14px;
+      text-align: left;
+      font-size: 11px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+
+    tbody tr {
+      border-bottom: 1px solid var(--border-dim);
+      transition: background 0.15s;
+    }
+
+    tbody tr:hover {
+      background: var(--surface);
+    }
+
+    tbody td {
+      padding: 9px 14px;
+      color: var(--text);
+    }
+
+    .state-open {
+      color: var(--open);
+      font-weight: bold;
+    }
+
+    .state-filtered {
+      color: var(--filtered);
+    }
+
+    .state-closed {
+      color: var(--closed);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--primary-dim); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--primary); }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="header-title">Nmap<span>X</span></div>
+    <div class="status-pill" id="status-pill">● Ready</div>
+  </div>
+
+  <div class="main">
+    <div class="left-panel">
+      <div class="section-label">Target</div>
+      <input type="text" id="target" placeholder="IP, range, or CIDR — e.g. 192.168.1.0/24">
+
+      <div class="section-label">Scan Profile</div>
+      <select id="profile">
+        <option value="-T4 -F">Quick Scan</option>
+        <option value="-T4 -A">Intense Scan</option>
+        <option value="-sS -T2">Stealth Scan</option>
+        <option value="-sU -T4">UDP Scan</option>
+        <option value="-sn">Ping Scan</option>
+        <option value="-T4 -p-">Full Port Scan</option>
+        <option value="-T4 -O">OS Detection</option>
+        <option value="-T4 -sV">Version Detect</option>
+      </select>
+
+      <div class="section-label">Port Range</div>
+      <select id="port-range" onchange="toggleCustomPorts()">
+        <option value="common">Common Ports</option>
+        <option value="all">All Ports (1-65535)</option>
+        <option value="custom">Custom</option>
+      </select>
+
+      <input type="text" id="custom-ports" placeholder="e.g. 80,443,22,8080" disabled
+             style="margin-top:6px; display:none;">
+
+      <div class="section-label">Options</div>
+      <label class="checkbox-row">
+        <input type="checkbox" id="os-detect"> OS Detection (-O)
+      </label>
+      <label class="checkbox-row">
+        <input type="checkbox" id="svc-version"> Service Version (-sV)
+      </label>
+
+      <div style="margin-top: 16px; display: flex; flex-direction: column; gap: 8px;">
+        <button class="btn btn-primary" id="scan-btn" onclick="startScan()">▶  START SCAN</button>
+        <button class="btn btn-danger" id="stop-btn" onclick="stopScan()" disabled>■  STOP SCAN</button>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="section-label">Scan Stats</div>
+      <div class="stats-grid">
+        <div class="stat-box">
+          <div class="stat-value" id="stat-hosts">0</div>
+          <div class="stat-label">Hosts Up</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-value" id="stat-ports">0</div>
+          <div class="stat-label">Open Ports</div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="section-label">Export</div>
+      <div class="export-row">
+        <button class="btn btn-sm" onclick="exportPDF()">Export PDF</button>
+        <button class="btn btn-sm" onclick="exportCSV()">Export CSV</button>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="recent-scans-header">
+        <div class="section-label">Recent Scans</div>
+        <button class="btn btn-sm clear-btn" onclick="clearHistory()">Clear</button>
+      </div>
+      <div class="history-list" id="history-list">
+        <div class="no-history">No scans yet.</div>
+      </div>
+    </div>
+
+    <div class="right-panel">
+      <div class="tab-bar">
+        <button class="tab-btn active" id="tab-btn-live" onclick="switchTab('live', event)">Live Output</button>
+        <button class="tab-btn" id="tab-btn-results" onclick="switchTab('results', event)">Results</button>
+      </div>
+
+      <div class="tab-content active" id="tab-live">
+        <textarea id="terminal" readonly>NmapX ready. Enter a target and click Start Scan.</textarea>
+      </div>
+
+      <div class="tab-content" id="tab-results">
+        <div class="table-wrapper">
+          <table id="results-table">
+            <thead>
+              <tr>
+                <th>Host</th>
+                <th>Port</th>
+                <th>Protocol</th>
+                <th>State</th>
+                <th>Service</th>
+                <th>Version</th>
+              </tr>
+            </thead>
+            <tbody id="results-body">
+              <tr><td colspan="6" class="empty-state">No scan results yet. Run a scan to populate this table.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let scanInterval = null;
+    let currentScanId = null;
+    let resultsData = [];
+
+    function switchTab(name, evt) {
+      document.getElementById('tab-btn-live').classList.toggle('active', name === 'live');
+      document.getElementById('tab-btn-results').classList.toggle('active', name === 'results');
+      document.getElementById('tab-live').classList.toggle('active', name === 'live');
+      document.getElementById('tab-results').classList.toggle('active', name === 'results');
+      if (evt && evt.target) evt.target.blur();
+    }
+
+    function toggleCustomPorts() {
+      const sel = document.getElementById('port-range').value;
+      const inp = document.getElementById('custom-ports');
+      inp.style.display = sel === 'custom' ? 'block' : 'none';
+      inp.disabled = sel !== 'custom';
+    }
+
+    function setStatus(text, state) {
+      const pill = document.getElementById('status-pill');
+      pill.textContent = '● ' + text;
+      pill.className = 'status-pill ' + (state || '');
+    }
+
+    function appendTerminal(line) {
+      const t = document.getElementById('terminal');
+      const time = new Date().toLocaleTimeString();
+      t.value += `[${time}]  ${line}\n`;
+      t.scrollTop = t.scrollHeight;
+    }
+
+    async function startScan() {
+      const target = document.getElementById('target').value.trim();
+      if (!target) {
+        alert('Please enter a target IP, range, or CIDR.');
+        return;
+      }
+
+      const profile = document.getElementById('profile').value;
+      const portRange = document.getElementById('port-range').value;
+      const customPorts = document.getElementById('custom-ports').value.trim();
+      const osDetect = document.getElementById('os-detect').checked;
+      const svcVersion = document.getElementById('svc-version').checked;
+
+      let ports = '';
+      if (portRange === 'common') ports = '--top-ports 1000';
+      else if (portRange === 'all') ports = '-p 1-65535';
+      else if (portRange === 'custom' && customPorts) ports = `-p ${customPorts}`;
+
+      document.getElementById('terminal').value = '';
+      document.getElementById('results-body').innerHTML =
+        '<tr><td colspan="6" class="empty-state">Scanning...</td></tr>';
+      document.getElementById('stat-hosts').textContent = '0';
+      document.getElementById('stat-ports').textContent = '0';
+      resultsData = [];
+
+      document.getElementById('scan-btn').disabled = true;
+      document.getElementById('stop-btn').disabled = false;
+      setStatus('Scanning...', 'scanning');
+      switchTab('live');
+
+      appendTerminal(`Starting scan on target: ${target}`);
+      appendTerminal(`Profile: ${profile}  Ports: ${portRange}  OS: ${osDetect}  SVC: ${svcVersion}`);
+      appendTerminal('─'.repeat(60));
+
+      const slowProfiles = ['-sS -T2', '-sU -T4', '-T4 -p-'];
+      if (slowProfiles.includes(profile)) {
+        appendTerminal('Warning: This profile may take several minutes to complete.');
+      }
+
+      try {
+        const res = await fetch('/api/scan/start', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ target, profile, ports, os_detect: osDetect, svc_version: svcVersion })
+        });
+        const data = await res.json();
+
+        if (!res.ok || data.error) {
+          appendTerminal(`ERROR: ${data.error || 'Scan failed'}`);
+          setStatus('Error', 'error');
+          resetButtons();
+          return;
+        }
+
+        currentScanId = data.scan_id;
+        appendTerminal(`Scan started (ID: ${currentScanId})`);
+
+        scanInterval = setInterval(() => pollScan(currentScanId), 2000);
+      } catch (err) {
+        appendTerminal(`Connection error: ${err.message}`);
+        setStatus('Error', 'error');
+        resetButtons();
+      }
+    }
+
+    async function pollScan(scanId) {
+      try {
+        const res = await fetch(`/api/scan/status/${scanId}`);
+        const data = await res.json();
+
+        if (data.output) {
+          data.output.forEach(line => appendTerminal(line));
+        }
+
+        if (data.status === 'done') {
+          clearInterval(scanInterval);
+          scanInterval = null;
+          onScanComplete(data);
+        } else if (data.status === 'error') {
+          clearInterval(scanInterval);
+          scanInterval = null;
+          appendTerminal(`SCAN ERROR: ${data.error}`);
+          setStatus('Error', 'error');
+          resetButtons();
+        } else if (data.status === 'stopped') {
+          clearInterval(scanInterval);
+          scanInterval = null;
+          appendTerminal('Scan stopped by user.');
+          setStatus('Stopped');
+          resetButtons();
+        }
+      } catch (err) {
+        appendTerminal(`Poll error: ${err.message}`);
+      }
+    }
+
+    function onScanComplete(data) {
+      appendTerminal('─'.repeat(60));
+      appendTerminal(`Scan complete — ${data.hosts_up} host(s) up, ${data.open_ports} open port(s)`);
+
+      document.getElementById('stat-hosts').textContent = data.hosts_up || 0;
+      document.getElementById('stat-ports').textContent = data.open_ports || 0;
+
+      setStatus(`Done — ${data.hosts_up} hosts, ${data.open_ports} ports`, 'done');
+      resetButtons();
+      populateTable(data.results);
+      loadHistory();
+
+      if (data.results && data.results.length > 0) {
+        switchTabByName('results');
+      }
+    }
+
+    function switchTabByName(name) {
+      document.getElementById('tab-btn-live').classList.toggle('active', name === 'live');
+      document.getElementById('tab-btn-results').classList.toggle('active', name === 'results');
+      document.getElementById('tab-live').classList.toggle('active', name === 'live');
+      document.getElementById('tab-results').classList.toggle('active', name === 'results');
+    }
+
+    function esc(s) {
+      return String(s ?? '')
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('\"', '&quot;')
+        .replaceAll("'", '&#39;');
+    }
+
+    function populateTable(results) {
+      resultsData = results || [];
+      const tbody = document.getElementById('results-body');
+
+      if (!results || results.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="empty-state">No open ports found.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = results.map(r => {
+        const st = String(r.state || '').toLowerCase();
+        const stateClass = st === 'open' ? 'state-open'
+                         : st === 'filtered' ? 'state-filtered'
+                         : 'state-closed';
+        return `<tr>
+          <td>${esc(r.host)}</td>
+          <td>${esc(r.port)}</td>
+          <td>${esc(r.protocol)}</td>
+          <td class="${stateClass}">${esc(String(r.state || '').toUpperCase())}</td>
+          <td>${esc(r.service || '—')}</td>
+          <td>${esc(r.version || '—')}</td>
+        </tr>`;
+      }).join('');
+    }
+
+    async function stopScan() {
+      if (scanInterval) { clearInterval(scanInterval); scanInterval = null; }
+      if (currentScanId) {
+        await fetch(`/api/scan/stop/${currentScanId}`, { method: 'POST' });
+      }
+      appendTerminal('Scan stopped by user.');
+      setStatus('Stopped');
+      resetButtons();
+    }
+
+    function resetButtons() {
+      document.getElementById('scan-btn').disabled = false;
+      document.getElementById('stop-btn').disabled = true;
+    }
+
+    async function exportPDF() {
+      if (resultsData.length === 0) { alert('No results to export.'); return; }
+      const res = await fetch('/api/export/pdf', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ results: resultsData })
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        alert(data.error || 'Export failed');
+        return;
+      }
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `NmapX_Report_${Date.now()}.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    async function exportCSV() {
+      if (resultsData.length === 0) { alert('No results to export.'); return; }
+      const headers = ['Host', 'Port', 'Protocol', 'State', 'Service', 'Version'];
+      const rows = resultsData.map(r =>
+        [r.host, r.port, r.protocol, r.state, r.service || '', r.version || '']
+          .map(v => `"${String(v ?? '').replaceAll('\"', '\"\"')}"`).join(',')
+      );
+      const csv = [headers.join(','), ...rows].join('\\n');
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `NmapX_${Date.now()}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    async function loadHistory() {
+      try {
+        const res = await fetch('/api/history');
+        const data = await res.json();
+        const list = document.getElementById('history-list');
+
+        if (!data.scans || data.scans.length === 0) {
+          list.innerHTML = '<div class="no-history">No scans yet.</div>';
+          return;
+        }
+
+        list.innerHTML = data.scans.slice(0, 5).map(s => `
+          <div class="history-item">
+            <div class="h-target">${esc(s.target)}</div>
+            <div class="h-meta">${esc(s.profile)} · ${esc(s.timestamp)}</div>
+          </div>
+        `).join('');
+      } catch (e) {
+        // ignore
+      }
+    }
+
+    async function clearHistory() {
+      if (!confirm('Clear all scan history?')) return;
+      await fetch('/api/history/clear', { method: 'POST' });
+      loadHistory();
+    }
+
+    loadHistory();
+  </script>
+</body>
+</html>
