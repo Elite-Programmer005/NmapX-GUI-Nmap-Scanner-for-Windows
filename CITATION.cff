@@ -1,0 +1,28 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it using the metadata below."
+authors:
+  - family-names: "Ahmed"
+    given-names: "Muhammad"
+    country: PK
+title: "NmapX - GUI Nmap Scanner for Windows"
+abstract: "A modern, Synthwave-themed graphical user interface for Nmap on Windows.
+  Built with Python, Flask, and HTML/CSS/JS. Features real-time scan output,
+  structured results table, SQLite scan history, and PDF/CSV export.
+  Developed as a Certified Ethical Hacking (CEH) final project."
+version: 1.0.0
+date-released: "2026-05-10"
+url: "https://github.com/your-username/NmapX-GUI-Nmap-Scanner-for-Windows"
+repository-code: "https://github.com/your-username/NmapX-GUI-Nmap-Scanner-for-Windows"
+license: MIT
+keywords:
+  - nmap
+  - network-scanner
+  - gui
+  - cybersecurity
+  - ethical-hacking
+  - ceh
+  - python
+  - flask
+  - penetration-testing
+  - port-scanner
+  - windows
