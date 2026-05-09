@@ -317,7 +317,7 @@ for details.
 
 ## Author
 
-**[Your Name]**
+**Muhammad Ahmed**
 CEH Student · Network Security Enthusiast
 
 [![GitHub](https://img.shields.io/badge/GitHub-your--username-bf5fff?style=flat-square&logo=github&logoColor=white)](https://github.com/your-username)
