@@ -55,6 +55,13 @@ def _normalize_args(base_args: str, ports_arg: str, os_detect: bool, svc_version
     ports_arg = (ports_arg or "").strip()
     ports: Optional[str] = None
 
+    # If the base args already include a -p token (e.g. "-p-"),
+    # do not append an additional -p option from ports_arg to avoid
+    # the "Only 1 -p option allowed" nmap error.
+    args_tokens = args.split()
+    if any(tok.startswith("-p") for tok in args_tokens):
+        ports_arg = ""
+
     # JS sends ports_arg like "--top-ports 1000" or "-p 1-65535"
     if ports_arg.startswith("-p "):
         ports = ports_arg.replace("-p", "", 1).strip()
