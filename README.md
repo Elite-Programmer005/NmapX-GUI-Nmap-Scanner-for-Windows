@@ -318,7 +318,7 @@ for details.
 ## Author
 
 **Muhammad Ahmed**
-CEH Student · Network Security Enthusiast
+CEH Student · Cyber Security Enthusiast
 
 [![GitHub](https://img.shields.io/badge/GitHub-Elite--Programmer005-bf5fff?style=flat-square&logo=github&logoColor=white)](https://github.com/Elite-Programmer005)
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-ff79c6?style=flat-square&logo=linkedin&logoColor=white)](https://linkedin.com/in/your-profile)
