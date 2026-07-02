@@ -133,8 +133,8 @@ https://nmap.org/download.html
 
 ### 1 — Clone the repository
 ```bash
-git clone https://github.com/your-username/NmapX.git
-cd NmapX
+git clone https://github.com/Elite-Programmer005/NmapX-GUI-Nmap-Scanner-for-Windows.git
+cd NmapX-GUI-Nmap-Scanner-for-Windows
 ```
 
 ### 2 — Create and activate a virtual environment
@@ -320,7 +320,7 @@ for details.
 **Muhammad Ahmed**
 CEH Student · Network Security Enthusiast
 
-[![GitHub](https://img.shields.io/badge/GitHub-your--username-bf5fff?style=flat-square&logo=github&logoColor=white)](https://github.com/your-username)
+[![GitHub](https://img.shields.io/badge/GitHub-Elite--Programmer005-bf5fff?style=flat-square&logo=github&logoColor=white)](https://github.com/Elite-Programmer005)
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-ff79c6?style=flat-square&logo=linkedin&logoColor=white)](https://linkedin.com/in/your-profile)
 
 ---
